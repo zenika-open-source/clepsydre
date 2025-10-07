@@ -22,6 +22,11 @@ body {
   width: 100%;
   height: 0;
 
+  -moz-transition: background-color 1s ease-in;
+  -webkit-transition: background-color 1s ease-in;
+  -o-transition: background-color 1s ease-in;
+  transition: background-color 1s ease-in;
+
   &.start {
     background-color: var(--blue);
   }

@@ -9,11 +9,7 @@ const startMessage = document.getElementById('startMessage');
 
 const totalHeight = window.innerHeight;
 
-// Zenika colors
-const blue = "#4CA8E7";
-const green = "#00EB84";
-const yellow = "#F4C042";
-const red = "#EE2238";
+
 
 let wakeLock = null;
 
@@ -53,14 +49,13 @@ function updateTimer(secRemaining) {
   timer.textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
 }
 
-function getColorByProgress(p) {
+function getClassByProgress(p) {
   // p = pourcentage entre 0 et 1
-  if (p < 0.8) return blue;
-  if (p < 0.9) return green;
-  if (p < 0.95) return yellow;
-  return red;
+  if (p < 0.8) return 'start';
+  if (p < 0.9) return 'critical';
+  if (p < 0.95) return 'very-critical';
+  return 'ending';
 }
-
 
 function startAnimation() {
   requestWakeLock();
@@ -77,7 +72,7 @@ function startAnimation() {
     updateTimer(remaining);
 
     div.style.height = `${currentHeight}px`;
-    div.style.backgroundColor = getColorByProgress(progress);
+    div.classList = getClassByProgress(progress);
 
     if (progress < 1) {
       requestAnimationFrame(animate);

@@ -9,6 +9,8 @@ The colors change too :
 - from 90% to 95% it turns yellow, hurry up.
 - from 95% to 100% it turns red, your time is almost over.
 
+Demo here (20 seconds timer) : https://zenika-open-source.github.io/clepsydre/?duration=20s
+
 There is a wakelock to prevent the phone from going to sleep that should work. Be mindful of your phone since it will stay unlocked.
 
 This project is greatly inspired from the Android app [Presentation Timer from Neuron Digital](https://play.google.com/store/apps/details?id=com.neurondigital.presentationtimer&hl=fr).

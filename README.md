@@ -14,3 +14,4 @@ There is a wakelock to prevent the phone from going to sleep that should work. B
 This project is greatly inspired from the Android app [Presentation Timer from Neuron Digital](https://play.google.com/store/apps/details?id=com.neurondigital.presentationtimer&hl=fr).
 Unfortunately this app only exists on Android and I thought it could be useful on iphones and other devices too.
 
+![with love by zenika](https://img.shields.io/badge/With%20%E2%9D%A4%EF%B8%8F%20by-Zenika-b51432.svg?link=https://oss.zenika.com)

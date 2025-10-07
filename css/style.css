@@ -16,3 +16,27 @@ body {
   height: 0;
   background-color: red;
 }
+
+#timer {
+  position: fixed;
+  top: 30%;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 20em;
+  font-weight: bold;
+  color: white;
+  text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.8);
+  z-index: 10;
+  user-select: none;
+  pointer-events: none;
+}
+
+/* Animation de clignotement */
+@keyframes blink {
+  0%, 50%, 100% { opacity: 1;}
+  25%, 75% { opacity: 0;}
+}
+
+.blinking {
+  animation: blink 1s infinite;
+}

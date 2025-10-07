@@ -15,6 +15,7 @@ const green = "#00EB84";
 const yellow = "#F4C042";
 const red = "#EE2238";
 
+let wakeLock = null;
 
 function parseDuration(durationStr) {
   const DEFAULT = 600; // par défaut 10 minutes
@@ -52,9 +53,6 @@ function updateTimer(secRemaining) {
   timer.textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
 }
 
-// Affiche la durée totale avant démarrage
-updateTimer(durationInSeconds);
-
 function getColorByProgress(p) {
   // p = pourcentage entre 0 et 1
   if (p < 0.8) return blue;
@@ -65,7 +63,7 @@ function getColorByProgress(p) {
 
 
 function startAnimation() {
-
+  requestWakeLock();
   startMessage.style.opacity = 0;
   setTimeout(() => startMessage.style.display = 'none', 600);
 
@@ -97,6 +95,20 @@ function startAnimation() {
   requestAnimationFrame(animate);
 }
 
+async function requestWakeLock() {
+  try {
+    if ('wakeLock' in navigator) {
+      wakeLock = await navigator.wakeLock.request('screen');
+      console.log('Wake Lock activé');
+      wakeLock.addEventListener('release', () => {
+        console.log('Wake Lock relâché');
+      });
+    }
+  } catch (err) {
+    console.warn(`Impossible d'activer Wake Lock : ${err}`);
+  }
+}
+
 // --- Démarrage au clic ---
 function onFirstClick() {
   startAnimation();
@@ -104,3 +116,12 @@ function onFirstClick() {
 }
 document.addEventListener('click', onFirstClick);
 
+// Wakelock: réactiver si la page revient au premier plan
+document.addEventListener('visibilitychange', () => {
+  if (wakeLock !== null && document.visibilityState === 'visible') {
+    requestWakeLock();
+  }
+});
+
+// Affiche la durée totale avant démarrage
+updateTimer(durationInSeconds);

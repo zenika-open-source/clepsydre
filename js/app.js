@@ -1,10 +1,43 @@
-const durationInSeconds = 10;
+// Lecture du paramètre "duration" dans l'URL (en secondes)
+const params = new URLSearchParams(globalThis.location.search);
+const durationParam = params.get("duration"); // ex: "2m30s", par défaut 10m
+const durationInSeconds = parseDuration(durationParam);
 
 const div = document.getElementById('expandingDiv');
 const timer = document.getElementById('timer');
 const startMessage = document.getElementById('startMessage');
 
 const totalHeight = window.innerHeight;
+
+
+function parseDuration(durationStr) {
+  const DEFAULT = 600; // par défaut 10 minutes
+  if (!durationStr) return DEFAULT;
+
+  durationStr = durationStr.toLowerCase().trim();
+  let totalSeconds = 0;
+  const regex = /(\d+)([ms]?)/g;
+  let match;
+  let found = false;
+
+  while ((match = regex.exec(durationStr)) !== null) {
+    found = true;
+    const value = Number.parseInt(match[1], 10);
+    const unit = match[2] || "s";
+    if (unit === "m") {
+      totalSeconds += value * 60;
+    } else {
+      totalSeconds += value;
+    }
+  }
+
+  if (!found || totalSeconds <= 0) {
+    console.warn(`Durée invalide ("${durationStr}"), utilisation de la valeur par défaut: ${DEFAULT}m`);
+    return DEFAULT;
+  }
+  return totalSeconds;
+}
+
 
 function updateTimer(secRemaining) {
   const sec = Math.max(0, Math.ceil(secRemaining));

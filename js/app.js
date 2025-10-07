@@ -9,6 +9,12 @@ const startMessage = document.getElementById('startMessage');
 
 const totalHeight = window.innerHeight;
 
+// Zenika colors
+const blue = "#4CA8E7";
+const green = "#00EB84";
+const yellow = "#F4C042";
+const red = "#EE2238";
+
 
 function parseDuration(durationStr) {
   const DEFAULT = 600; // par défaut 10 minutes
@@ -49,6 +55,14 @@ function updateTimer(secRemaining) {
 // Affiche la durée totale avant démarrage
 updateTimer(durationInSeconds);
 
+function getColorByProgress(p) {
+  // p = pourcentage entre 0 et 1
+  if (p < 0.8) return blue;
+  if (p < 0.9) return green;
+  if (p < 0.95) return yellow;
+  return red;
+}
+
 
 function startAnimation() {
 
@@ -65,6 +79,7 @@ function startAnimation() {
     updateTimer(remaining);
 
     div.style.height = `${currentHeight}px`;
+    div.style.backgroundColor = getColorByProgress(progress);
 
     if (progress < 1) {
       requestAnimationFrame(animate);

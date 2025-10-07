@@ -62,3 +62,17 @@ body {
 .blinking {
   animation: blink 1s infinite;
 }
+
+@media (max-width: 768px) {
+  #timer {
+    font-size: 10em;
+    top: 25%;
+  }
+}
+
+@media (max-width: 768px) {
+  #startMessage {
+    font-size: 2em;
+    bottom: 5%;
+  }
+}

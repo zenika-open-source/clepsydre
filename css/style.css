@@ -1,3 +1,10 @@
+:root {
+  --blue: #4CA8E7;
+  --green: #00EB84;
+  --yellow: #F4C042;
+  --red: #EE2238;
+}
+
 html,
 body {
   height: 100%;
@@ -14,7 +21,22 @@ body {
   left: 0;
   width: 100%;
   height: 0;
-  background-color: red;
+
+  &.start {
+    background-color: var(--blue);
+  }
+
+  &.critical {
+    background-color: var(--green);
+  }
+    
+  &.very-critical {
+    background-color: var(--yellow);
+  }
+    
+  &.ending {
+    background-color: var(--red);
+  }
 }
 
 #timer {

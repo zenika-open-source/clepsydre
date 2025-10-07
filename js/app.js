@@ -2,6 +2,7 @@ const durationInSeconds = 10;
 
 const div = document.getElementById('expandingDiv');
 const timer = document.getElementById('timer');
+const startMessage = document.getElementById('startMessage');
 
 const totalHeight = window.innerHeight;
 
@@ -17,6 +18,9 @@ updateTimer(durationInSeconds);
 
 
 function startAnimation() {
+
+  startMessage.style.opacity = 0;
+  setTimeout(() => startMessage.style.display = 'none', 600);
 
   const startTime = performance.now();
 
@@ -45,5 +49,10 @@ function startAnimation() {
   requestAnimationFrame(animate);
 }
 
-startAnimation();
+// --- Démarrage au clic ---
+function onFirstClick() {
+  startAnimation();
+  document.removeEventListener('click', onFirstClick);
+}
+document.addEventListener('click', onFirstClick);
 

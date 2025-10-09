@@ -2,6 +2,7 @@
 const params = new URLSearchParams(globalThis.location.search);
 const durationParam = params.get("duration"); // ex: "2m30s", par défaut 10m
 const durationInSeconds = parseDuration(durationParam);
+const soundEnabled = params.get("sound") === "true";
 
 const div = document.getElementById('expandingDiv');
 const timer = document.getElementById('timer');
@@ -78,6 +79,7 @@ function startAnimation() {
       requestAnimationFrame(animate);
     } else {
       timer.textContent = "00:00";
+      playBeep();
       timer.classList.add("blinking"); // démarre le clignotement
 
       // Arrête le clignotement après 5 secondes
@@ -102,6 +104,26 @@ async function requestWakeLock() {
   } catch (err) {
     console.warn(`Impossible d'activer Wake Lock : ${err}`);
   }
+}
+
+function playBeep() {
+  if (!soundEnabled) return;
+  
+  const AudioContext = window.AudioContext || window.webkitAudioContext;
+  const audioCtx = new AudioContext();
+
+  const oscillator = audioCtx.createOscillator();
+  const gainNode = audioCtx.createGain();
+
+  oscillator.type = "sine"; // tone type: sine | square | triangle | sawtooth
+  oscillator.frequency.setValueAtTime(880, audioCtx.currentTime); // frequency in Hz
+  gainNode.gain.setValueAtTime(0.2, audioCtx.currentTime); // volume
+
+  oscillator.connect(gainNode);
+  gainNode.connect(audioCtx.destination);
+
+  oscillator.start();
+  oscillator.stop(audioCtx.currentTime + 0.3); // play for 0.3s
 }
 
 // --- Démarrage au clic ---

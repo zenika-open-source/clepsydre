@@ -34,11 +34,11 @@ body {
   &.critical {
     background-color: var(--green);
   }
-    
+
   &.very-critical {
     background-color: var(--yellow);
   }
-    
+
   &.ending {
     background-color: var(--red);
   }
@@ -88,4 +88,14 @@ body {
 
 .blinking {
   animation: blink 1s infinite;
+}
+
+#credits {
+  color: white;
+  position: fixed;
+  bottom: 0;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  opacity: 0.7;
+  z-index: 10;
 }

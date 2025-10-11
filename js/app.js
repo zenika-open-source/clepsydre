@@ -2,6 +2,7 @@
 const params = new URLSearchParams(globalThis.location.search);
 const durationParam = params.get("duration"); // ex: "2m30s", par défaut 10m
 const durationInSeconds = parseDuration(durationParam);
+const soundEnabled = params.get("sound") === "true";
 
 const div = document.getElementById('expandingDiv');
 const timer = document.getElementById('timer');
@@ -9,11 +10,7 @@ const startMessage = document.getElementById('startMessage');
 
 const totalHeight = window.innerHeight;
 
-// Zenika colors
-const blue = "#4CA8E7";
-const green = "#00EB84";
-const yellow = "#F4C042";
-const red = "#EE2238";
+
 
 let wakeLock = null;
 
@@ -53,14 +50,13 @@ function updateTimer(secRemaining) {
   timer.textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
 }
 
-function getColorByProgress(p) {
+function getClassByProgress(p) {
   // p = pourcentage entre 0 et 1
-  if (p < 0.8) return blue;
-  if (p < 0.9) return green;
-  if (p < 0.95) return yellow;
-  return red;
+  if (p < 0.8) return 'start';
+  if (p < 0.9) return 'critical';
+  if (p < 0.95) return 'very-critical';
+  return 'ending';
 }
-
 
 function startAnimation() {
   requestWakeLock();
@@ -77,12 +73,13 @@ function startAnimation() {
     updateTimer(remaining);
 
     div.style.height = `${currentHeight}px`;
-    div.style.backgroundColor = getColorByProgress(progress);
+    div.classList = getClassByProgress(progress);
 
     if (progress < 1) {
       requestAnimationFrame(animate);
     } else {
       timer.textContent = "00:00";
+      playBeep();
       timer.classList.add("blinking"); // démarre le clignotement
 
       // Arrête le clignotement après 5 secondes
@@ -107,6 +104,26 @@ async function requestWakeLock() {
   } catch (err) {
     console.warn(`Impossible d'activer Wake Lock : ${err}`);
   }
+}
+
+function playBeep() {
+  if (!soundEnabled) return;
+  
+  const AudioContext = window.AudioContext || window.webkitAudioContext;
+  const audioCtx = new AudioContext();
+
+  const oscillator = audioCtx.createOscillator();
+  const gainNode = audioCtx.createGain();
+
+  oscillator.type = "sine"; // tone type: sine | square | triangle | sawtooth
+  oscillator.frequency.setValueAtTime(880, audioCtx.currentTime); // frequency in Hz
+  gainNode.gain.setValueAtTime(0.2, audioCtx.currentTime); // volume
+
+  oscillator.connect(gainNode);
+  gainNode.connect(audioCtx.destination);
+
+  oscillator.start();
+  oscillator.stop(audioCtx.currentTime + 0.3); // play for 0.3s
 }
 
 // --- Démarrage au clic ---

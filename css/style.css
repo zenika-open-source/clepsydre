@@ -1,3 +1,10 @@
+:root {
+  --blue: #4CA8E7;
+  --green: #00EB84;
+  --yellow: #F4C042;
+  --red: #EE2238;
+}
+
 html,
 body {
   height: 100%;
@@ -14,7 +21,27 @@ body {
   left: 0;
   width: 100%;
   height: 0;
-  background-color: red;
+
+  -moz-transition: background-color 1s ease-in;
+  -webkit-transition: background-color 1s ease-in;
+  -o-transition: background-color 1s ease-in;
+  transition: background-color 1s ease-in;
+
+  &.start {
+    background-color: var(--blue);
+  }
+
+  &.critical {
+    background-color: var(--green);
+  }
+
+  &.very-critical {
+    background-color: var(--yellow);
+  }
+
+  &.ending {
+    background-color: var(--red);
+  }
 }
 
 #timer {
@@ -63,16 +90,12 @@ body {
   animation: blink 1s infinite;
 }
 
-@media (max-width: 768px) {
-  #timer {
-    font-size: 10em;
-    top: 25%;
-  }
-}
-
-@media (max-width: 768px) {
-  #startMessage {
-    font-size: 2em;
-    bottom: 5%;
-  }
+#credits {
+  color: white;
+  position: fixed;
+  bottom: 0;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  opacity: 0.7;
+  z-index: 10;
 }

@@ -15,10 +15,46 @@
 </head>
 
 <body>
+  <div id="settings">
+    <h3>Settings</h3>
+    <button id="closeSettings" class="btn" onclick="toggleSettings()">╳</button>
 
-  <div id="startMessage"><button onclick="startAnimation()">START</button></div>
+    <div>
+      <label for="settings-duration">Duration :</label><input type="time" id="settings-duration" value="10:00">
+    </div>
+    <div>
+      <label for="settings-show-timer">Show timer :</label><input type="checkbox" id="settings-show-timer" checked />
+    </div>
+    <div>
+      <label for="settings-color-scheme">Color Scheme:</label>
+      <select id="settings-color-scheme">
+        <option value="zenika">Zenika</option>
+        <option value="alt">Alt</option>
+      </select>
+    </div>
+    <div>
+      <label for="settings-threshold1">First threshold :</label><input id="settings-threshold1" type="number" min="0" max="100" value="80" /><br />
+      <label for="settings-threshold2">Second threshold :</label><input id="settings-threshold2" type="number" min="0" max="100" value="90" /><br />
+      <label for="settings-threshold3">Third threshold :</label><input id="settings-threshold3" type="number" min="0" max="100" value="95" />
+    </div>
+    <div>
+      <label for="settings-play-sound">Play sound at the end:</label><input type="checkbox" id="settings-play-sound" />
+    </div>
+    <div>
+      <label for="settings-orientation">
+        Orientation:
+      </label>
+      <select id="settings-orientation">
+        <option value="upward">upward</option>
+        <option value="right">right</option>
+      </select>
+    </div>
+  </div>
+
+  <div id="startMessage"><button class="btn" onclick="startAnimation()">START</button></div>
   <div id="timer">00:00</div>
   <div id="expandingDiv"></div>
+  <div id="toggleSettings"><button class="btn" onclick="toggleSettings()">⚙️</button></div>
   <div id="credits">made with ❤️ by Zenika</div>
 
   <script src="js/app.js"></script>

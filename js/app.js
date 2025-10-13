@@ -7,11 +7,12 @@ const soundEnabled = params.get("sound") === "true";
 const div = document.getElementById('expandingDiv');
 const timer = document.getElementById('timer');
 const startMessage = document.getElementById('startMessage');
+const settingsPane = document.getElementById("settings");
+const settingsBtn = document.getElementById("toggleSettings");
 
 const totalHeight = window.innerHeight;
 
-
-
+let settingsVisible = false;
 let wakeLock = null;
 
 function parseDuration(durationStr) {
@@ -58,9 +59,32 @@ function getClassByProgress(p) {
   return 'ending';
 }
 
+function toggleSettings() {
+  if (settingsVisible) {
+    hideSettings();
+  } else {
+    showSettings();
+  }
+}
+
+function showSettings() {
+  settingsVisible = true;
+  settingsPane.style.display = "block";
+  settingsBtn.style.display = "none";
+}
+
+function hideSettings() {
+  settingsVisible = false;
+  settingsPane.style.display = "none";
+  settingsBtn.style.display= "block";
+  // TODO : apply all settings on close
+}
+
+
 function startAnimation() {
   requestWakeLock();
   startMessage.style.opacity = 0;
+  hideSettings();
   setTimeout(() => startMessage.style.display = 'none', 600);
 
   const startTime = performance.now();

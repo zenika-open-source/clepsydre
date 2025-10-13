@@ -108,7 +108,7 @@ async function requestWakeLock() {
 
 function playBeep() {
   if (!soundEnabled) return;
-  
+
   const AudioContext = window.AudioContext || window.webkitAudioContext;
   const audioCtx = new AudioContext();
 
@@ -125,13 +125,6 @@ function playBeep() {
   oscillator.start();
   oscillator.stop(audioCtx.currentTime + 0.3); // play for 0.3s
 }
-
-// --- Démarrage au clic ---
-function onFirstClick() {
-  startAnimation();
-  document.removeEventListener('click', onFirstClick);
-}
-document.addEventListener('click', onFirstClick);
 
 // Wakelock: réactiver si la page revient au premier plan
 document.addEventListener('visibilitychange', () => {

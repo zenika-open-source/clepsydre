@@ -1,9 +1,17 @@
-:root {
-  --blue: #4CA8E7;
-  --green: #00EB84;
-  --yellow: #F4C042;
-  --red: #EE2238;
-}
+:root,
+  :root.zenika-colors {
+    --blue: #4CA8E7;
+    --green: #00EB84;
+    --yellow: #F4C042;
+    --red: #EE2238;
+  }
+
+  :root.colorblind-colors {
+    --blue: #648FFF;
+    --green: #FFB000;
+    --yellow: #FE6100;
+    --red: #DC267F;
+  }
 
 html,
 body {
@@ -70,26 +78,67 @@ body {
 
 }
 
-#settings {
-  display: none;
-  position: fixed;
-  top: 0;
-  left: 50%;
-  transform: translateX(-50%);
+#settingsForm {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 12px 16px;
+  align-items: center;
+  max-width: 700px;
+  margin: 24px auto;
+
+  label {
+    justify-self: end;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  div {
+    width: 100%;
+  }
+}
+
+#settingsModal {
   color: white;
-  width: 100%;
-  height: 100%;
-  text-align: center;
+  min-width: 20%;
   font-size: 2em;
   background-color: #333333;
   z-index: 50;
-  border: 1px solid red;
+
+  h3 {
+    margin-top: 0;
+    text-align: center;
+  }
 
   #closeSettings {
     position: absolute;
     top: 0;
     right: 0;
+    line-height: 0.1em; /* ugly fix */
   }
+
+  div.buttons {
+    display: flex;
+    gap: 12px;
+  }
+
+  button.action {
+    border: 1px solid white;
+    background-color: var(--blue);
+    cursor: pointer;
+    display: inline-block;
+    color: white;
+    text-align: center;
+    padding: 0.4em;
+    font-size: 1em;
+    border-radius: 6px;
+    flex: 1;
+  }
+
+}
+
+#settingsModal::backdrop {
+  background-color: #333333;
+  opacity: 0.75;
 }
 
 #toggleSettings {

@@ -20,9 +20,10 @@
     <form id="settingsForm" method="dialog" name="settingsForm">
       <button id="closeSettings" class="btn" onclick="hideSettings()">╳</button>
 
-      <label for="duration">Duration :</label>
+      <label for="durationMinutes">Duration :</label>
       <div>
-        <input type="time" id="duration" name="duration" value="10:00" autofocus>
+        <input type="number" id="durationMinutes" name="minutes" value="10" min="0" autofocus> m
+        <input type="number" id="durationSeconds" name="seconds" value="0" min="0"> s
       </div>
 
       <label for="show-timer">Show timer :</label>

@@ -95,6 +95,10 @@ body {
   div {
     width: 100%;
   }
+
+  #durationMinutes, #durationSeconds {
+    width: 5em;
+  }
 }
 
 #settingsModal {

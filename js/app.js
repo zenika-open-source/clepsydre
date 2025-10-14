@@ -72,7 +72,7 @@ function hideSettings() {
 }
 
 function submitSettings() {
-  settings.durationInSeconds = parseDuration(settingsForm["duration"].value.replace(":", "m"))
+  settings.durationInSeconds = Number(settingsForm["durationMinutes"].value * 60) + Number(settingsForm["durationSeconds"].value)
   settings.colorScheme = settingsForm["color-scheme"].value;
   settings.showTimer = settingsForm["show-timer"].checked;
   settings.firstThreshold = settingsForm["threshold1"].value / 100;
@@ -103,7 +103,8 @@ function applySettings() {
 
 function updateSettingsForm() {
   // Apply the settings to the form so it reflects current settings
-  settingsForm["duration"].value = clockFormat(settings.durationInSeconds);
+  settingsForm["durationMinutes"].value = Math.floor(settings.durationInSeconds / 60);
+  settingsForm["durationSeconds"].value = settings.durationInSeconds % 60;
   settingsForm["show-timer"].checked = settings.showTimer;
   settingsForm["color-scheme"].value = settings.colorScheme;
   settingsForm["threshold1"].value = settings.firstThreshold * 100;
@@ -120,17 +121,13 @@ function resetDefaultSettings() {
 
 // ------------- Animation ----------------
 
-function clockFormat(seconds) {
-  const minutes = Math.floor(seconds / 60);
-  const remainingSeconds = seconds % 60;
-
-  // format into "mm:ss" padded with 0 if needed
-  return `${String(minutes).padStart(2, '0')}:${String(remainingSeconds).padStart(2, '0')}`;
-}
-
 function updateTimer(secRemaining) {
   const sec = Math.max(0, Math.ceil(secRemaining));
-  timer.textContent = clockFormat(sec);
+  const minutes = Math.floor(sec / 60);
+  const remainingSeconds = sec % 60;
+
+  // format into "mm:ss" padded with 0 if needed
+  timer.textContent = `${String(minutes).padStart(2, '0')}:${String(remainingSeconds).padStart(2, '0')}`;
 }
 
 function getClassByProgress(p) {

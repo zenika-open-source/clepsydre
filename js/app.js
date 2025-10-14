@@ -1,26 +1,46 @@
-// Lecture du paramètre "duration" dans l'URL (en secondes)
+// fetch params in url for quick settings
 const params = new URLSearchParams(globalThis.location.search);
-const durationParam = params.get("duration"); // ex: "2m30s", par défaut 10m
-const durationInSeconds = parseDuration(durationParam);
-const soundEnabled = params.get("sound") === "true";
-
 const div = document.getElementById('expandingDiv');
 const timer = document.getElementById('timer');
 const startMessage = document.getElementById('startMessage');
-
+const settingsModal = document.getElementById("settingsModal");
+const settingsForm = document.getElementById("settingsForm");
 const totalHeight = window.innerHeight;
 
+const defaultSettings = {
+  "durationInSeconds" : 600,
+  "showTimer": true,
+  "colorScheme": "zenika-colors",
+  "firstThreshold": 0.8,
+  "secondThreshold": 0.9,
+  "thirdThreshold": 0.95,
+  "soundEnabled": false,
+  "orientation": "upward"
+}
 
+let settings = {
+  "durationInSeconds" : parseDuration(params.get("duration")),
+  "showTimer": true,
+  "colorScheme": "zenika-colors",
+  "firstThreshold": 0.8,
+  "secondThreshold": 0.9,
+  "thirdThreshold": 0.95,
+  "soundEnabled": params.get("sound") === "true",
+  "orientation": "upward"
+}
 
 let wakeLock = null;
 
+
+// ------------- Settings ----------------
+
 function parseDuration(durationStr) {
-  const DEFAULT = 600; // par défaut 10 minutes
+  const DEFAULT = 600; // 10 minutes by default
   if (!durationStr) return DEFAULT;
 
   durationStr = durationStr.toLowerCase().trim();
   let totalSeconds = 0;
-  const regex = /(\d+)([ms]?)/g;
+  const regex = /(\d+)([ms:]?)/g;
   let match;
   let found = false;
 
@@ -28,7 +48,7 @@ function parseDuration(durationStr) {
     found = true;
     const value = Number.parseInt(match[1], 10);
     const unit = match[2] || "s";
-    if (unit === "m") {
+    if (unit === "m" || unit === ":") {
       totalSeconds += value * 60;
     } else {
       totalSeconds += value;
@@ -36,27 +56,91 @@ function parseDuration(durationStr) {
   }
 
   if (!found || totalSeconds <= 0) {
-    console.warn(`Durée invalide ("${durationStr}"), utilisation de la valeur par défaut: ${DEFAULT}m`);
+    console.warn(`Durée invalide ("${durationStr}"), utilisation de la valeur par défaut: ${DEFAULT}s`);
     return DEFAULT;
   }
   return totalSeconds;
 }
 
 
+function showSettings() {
+  settingsModal.showModal();
+}
+
+function hideSettings() {
+  settingsModal.close();
+}
+
+function submitSettings() {
+  settings.durationInSeconds = parseDuration(settingsForm["duration"].value.replace(":", "m"))
+  settings.colorScheme = settingsForm["color-scheme"].value;
+  settings.showTimer = settingsForm["show-timer"].checked;
+  settings.firstThreshold = settingsForm["threshold1"].value / 100;
+  settings.secondThreshold = settingsForm["threshold2"].value / 100;
+  settings.thirdThreshold = settingsForm["threshold3"].value / 100;
+  settings.soundEnabled = settingsForm["play-sound"].checked;
+  settings.orientation = settingsForm["orientation"].value;
+
+  applySettings();
+  hideSettings();
+}
+
+function applySettings() {
+  updateTimer(settings.durationInSeconds);
+  document.documentElement.className = settings.colorScheme;
+
+  if (settings.showTimer === false) {
+    // maybe only hide the timer once it's started, but keep it visible until start to show the duration?
+    timer.style.display = "none";
+  } else {
+    timer.style.display = "block";
+  }
+
+  updateSettingsForm();
+
+  // Currently : apply changes to running timer. Maybe start the timer over?
+}
+
+function updateSettingsForm() {
+  // Apply the settings to the form so it reflects current settings
+  settingsForm["duration"].value = clockFormat(settings.durationInSeconds);
+  settingsForm["show-timer"].checked = settings.showTimer;
+  settingsForm["color-scheme"].value = settings.colorScheme;
+  settingsForm["threshold1"].value = settings.firstThreshold * 100;
+  settingsForm["threshold2"].value = settings.secondThreshold * 100;
+  settingsForm["threshold3"].value = settings.thirdThreshold * 100;
+  settingsForm["play-sound"].checked = settings.soundEnabled;
+  settingsForm["orientation"].value = settings.orientation;
+}
+
+function resetDefaultSettings() {
+  settings = defaultSettings;
+  updateSettingsForm();
+}
+
+// ------------- Animation ----------------
+
+function clockFormat(seconds) {
+  const minutes = Math.floor(seconds / 60);
+  const remainingSeconds = seconds % 60;
+
+  // format into "mm:ss" padded with 0 if needed
+  return `${String(minutes).padStart(2, '0')}:${String(remainingSeconds).padStart(2, '0')}`;
+}
+
 function updateTimer(secRemaining) {
   const sec = Math.max(0, Math.ceil(secRemaining));
-  const minutes = Math.floor(sec / 60);
-  const seconds = sec % 60;
-  timer.textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+  timer.textContent = clockFormat(sec);
 }
 
 function getClassByProgress(p) {
-  // p = pourcentage entre 0 et 1
-  if (p < 0.8) return 'start';
-  if (p < 0.9) return 'critical';
-  if (p < 0.95) return 'very-critical';
+  // p = percentage between 0 and 1
+  if (p < settings.firstThreshold) return 'start';
+  if (p < settings.secondThreshold) return 'critical';
+  if (p < settings.thirdThreshold) return 'very-critical';
   return 'ending';
 }
+
 
 function startAnimation() {
   requestWakeLock();
@@ -67,9 +151,9 @@ function startAnimation() {
 
   function animate(time) {
     const elapsed = time - startTime;
-    const progress = Math.min(elapsed / (durationInSeconds * 1000), 1); // 0 → 1
+    const progress = Math.min(elapsed / (settings.durationInSeconds * 1000), 1); // 0 → 1
     const currentHeight = Math.floor(totalHeight * progress);
-    const remaining = durationInSeconds - (elapsed / 1000);
+    const remaining = settings.durationInSeconds - (elapsed / 1000);
     updateTimer(remaining);
 
     div.style.height = `${currentHeight}px`;
@@ -107,7 +191,7 @@ async function requestWakeLock() {
 }
 
 function playBeep() {
-  if (!soundEnabled) return;
+  if (!settings.soundEnabled) return;
 
   const AudioContext = window.AudioContext || window.webkitAudioContext;
   const audioCtx = new AudioContext();
@@ -133,5 +217,4 @@ document.addEventListener('visibilitychange', () => {
   }
 });
 
-// Affiche la durée totale avant démarrage
-updateTimer(durationInSeconds);
+applySettings();

@@ -66,6 +66,8 @@ body {
   pointer-events: none;
 }
 
+
+
 #startMessage {
   position: fixed;
   bottom: 10%;
@@ -179,6 +181,32 @@ body {
   opacity: 0.7;
   z-index: 10;
 }
+
+#credits {
+  color: white;
+  position: fixed;
+  bottom: 0;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  opacity: 0.7;
+  z-index: 10;
+}
+
+#github {
+  position: fixed;
+  bottom: 10px;
+  right: 5%;
+  z-index: 60;
+  pointer-events: auto;
+}
+
+#github img {
+  width: 47px;
+  height: 47px;
+  display: inline-block;
+}
+
+
 
 .btn {
   border: none;

@@ -1,4 +1,5 @@
 // fetch params in url for quick settings
+
 const params = new URLSearchParams(globalThis.location.search);
 const div = document.getElementById('expandingDiv');
 const timer = document.getElementById('timer');
@@ -6,6 +7,9 @@ const startMessage = document.getElementById('startMessage');
 const settingsModal = document.getElementById("settingsModal");
 const settingsForm = document.getElementById("settingsForm");
 const totalHeight = window.innerHeight;
+// 🔹 Declare global variables at the top
+let animationFrameId = null;
+ 
 
 const defaultSettings = {
   "durationInSeconds" : 600,
@@ -138,9 +142,10 @@ function getClassByProgress(p) {
   return 'ending';
 }
 
-
 function startAnimation() {
   requestWakeLock();
+
+  // Hide Start button
   startMessage.style.opacity = 0;
   setTimeout(() => startMessage.style.display = 'none', 600);
 
@@ -148,30 +153,82 @@ function startAnimation() {
 
   function animate(time) {
     const elapsed = time - startTime;
-    const progress = Math.min(elapsed / (settings.durationInSeconds * 1000), 1); // 0 → 1
+    const progress = Math.min(elapsed / (settings.durationInSeconds * 1000), 1);
     const currentHeight = Math.floor(totalHeight * progress);
     const remaining = settings.durationInSeconds - (elapsed / 1000);
-    updateTimer(remaining);
 
+    updateTimer(remaining);
     div.style.height = `${currentHeight}px`;
     div.classList = getClassByProgress(progress);
 
     if (progress < 1) {
-      requestAnimationFrame(animate);
+      animationFrameId = requestAnimationFrame(animate);
     } else {
+      // Timer finished
       timer.textContent = "00:00";
       playBeep();
-      timer.classList.add("blinking"); // démarre le clignotement
+      timer.classList.add("blinking");
 
-      // Arrête le clignotement après 5 secondes
+      // After 5 seconds of blinking, stop blinking & show Reset button
       setTimeout(() => {
         timer.classList.remove("blinking");
         timer.style.opacity = "1";
+        showResetButton();  // <--- call function here
       }, 5000);
     }
   }
-  requestAnimationFrame(animate);
+
+  animationFrameId = requestAnimationFrame(animate);
 }
+
+// Show Reset button after blinking finishes
+// Show the Reset button and keep it visible always
+const resetButton = document.getElementById("resetButton");
+resetButton.style.display = "inline-block";
+setTimeout(() => {
+  resetButton.style.opacity = 1;
+}, 100); // fade-in animation
+
+
+
+//   Function to reset the timer/animation
+function resetTimer() {
+  console.log("Reset clicked");
+
+  // Stop animation if running
+  if (animationFrameId) {
+    cancelAnimationFrame(animationFrameId);
+    animationFrameId = null;
+  }
+
+  // Reset visuals
+  div.style.height = "0px"; // animation bar back to zero
+
+  // Reset timer text to full duration in mm:ss
+  const totalSeconds = settings.durationInSeconds;
+  const minutes = Math.floor(totalSeconds / 60).toString().padStart(2, "0");
+  const seconds = (totalSeconds % 60).toString().padStart(2, "0");
+  timer.textContent = `${minutes}:${seconds}`;
+
+  // Hide Reset button
+  const resetButton = document.getElementById("resetButton");
+  resetButton.style.opacity = 0;
+  setTimeout(() => (resetButton.style.display = "none"), 300);
+
+  // Show Start button again
+  startMessage.style.display = "block";
+  setTimeout(() => (startMessage.style.opacity = 1), 100);
+
+  // Release Wake Lock if active
+  if (wakeLock) {
+    wakeLock.release().then(() => {
+      wakeLock = null;
+      console.log("Wake Lock relâché");
+    });
+  }
+}
+
+
 
 async function requestWakeLock() {
   try {

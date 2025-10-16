@@ -191,3 +191,25 @@ body {
   text-align: center;
   padding: 0.2em;
 }
+#resetButton {
+  position: fixed;         
+  bottom: 40px;          
+  left: 50%;             
+  transform: translateX(-50%); 
+  padding: 12px 24px;     
+  font-size: 18px;       
+  font-weight: bold;
+  border: none;
+  border-radius: 8px;
+  background-color: #ff4d4f;   
+  color: white;
+  cursor: pointer;
+  opacity: 0;             
+  transition: opacity 0.3s ease, background-color 0.2s ease, transform 0.2s ease;
+  z-index: 1000;         
+}
+
+#resetButton:hover {
+  background-color: #ff7875;  
+  transform: translateX(-50%) scale(1.05);  
+}

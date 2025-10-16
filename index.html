@@ -18,7 +18,7 @@
   <dialog id="settingsModal" onsubmit="submitSettings()">
     <h3>Settings</h3>
     <form id="settingsForm" method="dialog" name="settingsForm">
-      <button id="closeSettings" class="btn" onclick="hideSettings()">╳</button>
+      <button type="button" id="closeSettings" class="btn" onclick="hideSettings()">╳</button>
 
       <label for="durationMinutes">Duration :</label>
       <div>
@@ -66,16 +66,25 @@
       </div>
     </form>
     <div class="buttons">
-      <button id="resetBtn" class="action" onclick="resetDefaultSettings()">Restore defaults</button>
-      <button id="submitBtn" class="action" onclick="submitSettings()">Apply</button>
+      <button type="button" id="resetBtn" class="action" onclick="resetDefaultSettings()">Restore defaults</button>
+      <button type="button" id="submitBtn" class="action" onclick="submitSettings()">Apply</button>
     </div>
 
   </dialog>
+<div id="startMessage">
+  <button id="startButton" type="button" class="btn" onclick="startAnimation()">Start</button>
+</div>
 
-  <div id="startMessage"><button class="btn" onclick="startAnimation()">START</button></div>
+<button id="resetButton" type="button" onclick="resetTimer()" 
+        style="display:none; opacity:0; transition: opacity 0.3s;">
+  Reset
+</button>
+
+</div>
+
   <div id="timer">00:00</div>
   <div id="expandingDiv"></div>
-  <div id="toggleSettings"><button class="btn" onclick="showSettings()">⚙️</button></div>
+  <div id="toggleSettings"><button type="button" class="btn" onclick="showSettings()">⚙️</button></div>
   <div id="credits">made with ❤️ by Zenika</div>
 
   <script src="js/app.js"></script>

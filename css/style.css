@@ -115,9 +115,11 @@ body {
 
   #closeSettings {
     position: absolute;
-    top: 0;
-    right: 0;
-    line-height: 0.1em; /* ugly fix */
+    font-size: 1em;
+    top: 1em;
+    right: 1em;
+    line-height: 0.1em;
+    cursor: pointer;
   }
 
   div.buttons {

@@ -1,14 +1,22 @@
 // fetch params in url for quick settings
+import { updateTimer } from "./utils.mjs";
+
+// Lecture du paramètre "duration" dans l'URL (en secondes)
 const params = new URLSearchParams(globalThis.location.search);
 const div = document.getElementById('expandingDiv');
 const timer = document.getElementById('timer');
 const startMessage = document.getElementById('startMessage');
-const settingsModal = document.getElementById("settingsModal");
 const settingsForm = document.getElementById("settingsForm");
+const settingsModal = document.getElementById("settingsModal");
+const closeSettings = document.getElementById("closeSettings");
+const resetBtn = document.getElementById("resetBtn");
+const submitBtn = document.getElementById("submitBtn");
+const showSettingsBtn = document.getElementById("showSettings");
+const startAnimationBtn = document.getElementById("startAnimation");
 const totalHeight = window.innerHeight;
 
 const defaultSettings = {
-  "durationInSeconds" : 600,
+  "durationInSeconds": 600,
   "showTimer": true,
   "colorScheme": "zenika-colors",
   "firstThreshold": 0.8,
@@ -19,7 +27,7 @@ const defaultSettings = {
 }
 
 let settings = {
-  "durationInSeconds" : parseDuration(params.get("duration")),
+  "durationInSeconds": parseDuration(params.get("duration")),
   "showTimer": true,
   "colorScheme": "zenika-colors",
   "firstThreshold": 0.8,
@@ -86,7 +94,7 @@ function submitSettings() {
 }
 
 function applySettings() {
-  updateTimer(settings.durationInSeconds);
+  timer.textContent = updateTimer(settings.durationInSeconds);
   document.documentElement.className = settings.colorScheme;
 
   if (settings.showTimer === false) {
@@ -120,16 +128,6 @@ function resetDefaultSettings() {
 }
 
 // ------------- Animation ----------------
-
-function updateTimer(secRemaining) {
-  const sec = Math.max(0, Math.ceil(secRemaining));
-  const minutes = Math.floor(sec / 60);
-  const remainingSeconds = sec % 60;
-
-  // format into "mm:ss" padded with 0 if needed
-  timer.textContent = `${String(minutes).padStart(2, '0')}:${String(remainingSeconds).padStart(2, '0')}`;
-}
-
 function getClassByProgress(p) {
   // p = percentage between 0 and 1
   if (p < settings.firstThreshold) return 'start';
@@ -137,7 +135,6 @@ function getClassByProgress(p) {
   if (p < settings.thirdThreshold) return 'very-critical';
   return 'ending';
 }
-
 
 function startAnimation() {
   requestWakeLock();
@@ -150,8 +147,9 @@ function startAnimation() {
     const elapsed = time - startTime;
     const progress = Math.min(elapsed / (settings.durationInSeconds * 1000), 1); // 0 → 1
     const currentHeight = Math.floor(totalHeight * progress);
+
     const remaining = settings.durationInSeconds - (elapsed / 1000);
-    updateTimer(remaining);
+    timer.textContent = updateTimer(remaining);
 
     div.style.height = `${currentHeight}px`;
     div.classList = getClassByProgress(progress);
@@ -207,11 +205,24 @@ function playBeep() {
   oscillator.stop(audioCtx.currentTime + 0.3); // play for 0.3s
 }
 
-// Wakelock: réactiver si la page revient au premier plan
-document.addEventListener('visibilitychange', () => {
-  if (wakeLock !== null && document.visibilityState === 'visible') {
-    requestWakeLock();
-  }
-});
 
-applySettings();
+export function init() {
+  // Wakelock: réactiver si la page revient au premier plan
+  document.addEventListener('visibilitychange', () => {
+    if (wakeLock !== null && document.visibilityState === 'visible') {
+      requestWakeLock();
+    }
+  });
+
+  settingsForm.addEventListener('submit', submitSettings);
+  closeSettings.addEventListener('click', closeSettings);
+  resetBtn.addEventListener('click', resetDefaultSettings);
+  submitBtn.addEventListener('click', submitSettings);
+  startAnimationBtn.addEventListener('click', startAnimation);
+  showSettingsBtn.addEventListener('click', showSettings);
+
+
+
+  applySettings();
+}
+

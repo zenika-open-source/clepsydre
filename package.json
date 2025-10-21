@@ -7,11 +7,15 @@
     "presentation",
     "timer"
   ],
+  "type": "module",
   "license": "MIT",
   "author": "David Da Silva",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "echo \"Just open the file in your browser\" && exit 0",
+    "test": "node --test",
+    "start": "npx http-server",
     "build": "echo \"No need for that\" && exit 0"
+  },
+  "peerDependencies": {
+    "http-server": "^14.1.1"
   }
 }

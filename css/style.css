@@ -66,8 +66,6 @@ body {
   pointer-events: none;
 }
 
-
-
 #startMessage {
   position: fixed;
   bottom: 10%;
@@ -77,7 +75,6 @@ body {
   animation: pulse 1.2s infinite alternate;
   transition: opacity 0.6s ease;
   user-select: none;
-
 }
 
 #settingsForm {
@@ -166,8 +163,6 @@ body {
       display: inline-block;
     }
   }
-
-
 }
 
 #settingsModal::backdrop {
@@ -181,7 +176,6 @@ body {
   right: 0;
   z-index: 20;
 }
-
 
 
 /* Animation de pulsation */
@@ -209,7 +203,6 @@ body {
   opacity: 0.7;
   z-index: 10;
 }
-
 
 .btn {
   border: none;

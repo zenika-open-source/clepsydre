@@ -12,6 +12,7 @@
   "author": "David Da Silva",
   "scripts": {
     "test": "node --test",
+    "test:ci": "node --test --test-reporter=junit --test-reporter-destination=report.xml ",
     "start": "npx http-server",
     "build": "echo \"No need for that\" && exit 0"
   },

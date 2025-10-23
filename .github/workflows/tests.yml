@@ -17,4 +17,12 @@ jobs:
           cache: 'npm'
 
       - name: Run tests
-        run: npm t
+        run: npm run test:ci
+
+      - name: Test Report
+        uses: dorny/test-reporter@v2
+        if: ${{ !cancelled() }}
+        with:
+          name: Node tests
+          path: report.xml
+          reporter: jest-junit

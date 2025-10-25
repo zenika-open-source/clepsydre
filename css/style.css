@@ -62,11 +62,27 @@ body {
   color: white;
   text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.8);
   z-index: 10;
-  user-select: none;
-  pointer-events: none;
+
+  &::before {
+    content: "||";
+    z-index: -1;
+    display: none;
+    position: absolute;
+    content: "||";
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 1.5em;
+    top: -0.20em;
+    color: #555555;
+  }
+
+  &.pause {
+    animation: blink 5s infinite;
+  }
 }
 
-#startMessage {
+
+.action-button {
   position: fixed;
   bottom: 10%;
   left: 50%;
@@ -75,6 +91,10 @@ body {
   animation: pulse 1.2s infinite alternate;
   transition: opacity 0.6s ease;
   user-select: none;
+
+  &.hide{
+    display: none;
+  }
 }
 
 #settingsForm {
@@ -170,13 +190,12 @@ body {
   opacity: 0.75;
 }
 
-#toggleSettings {
+#showSettings {
   position: absolute;
   bottom: 0;
   right: 0;
   z-index: 20;
 }
-
 
 /* Animation de pulsation */
 @keyframes pulse {
@@ -187,7 +206,7 @@ body {
 /* Animation de clignotement */
 @keyframes blink {
   0%, 50%, 100% { opacity: 1;}
-  25%, 75% { opacity: 0;}
+  25%, 75% { opacity: 0.1;}
 }
 
 .blinking {
@@ -214,4 +233,5 @@ body {
   font-weight: bold;
   text-align: center;
   padding: 0.2em;
+  background: none; 
 }

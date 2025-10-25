@@ -3,17 +3,20 @@ import { updateTimer } from "./utils.mjs";
 
 // Lecture du paramètre "duration" dans l'URL (en secondes)
 const params = new URLSearchParams(globalThis.location.search);
-const div = document.getElementById('expandingDiv');
+const background = document.getElementById('expandingDiv');
 const timer = document.getElementById('timer');
-const startMessage = document.getElementById('startMessage');
+const startBtn = document.getElementById('start-pause');
 const settingsForm = document.getElementById("settingsForm");
 const settingsModal = document.getElementById("settingsModal");
-const closeSettings = document.getElementById("closeSettings");
+const closeSettingsBtn = document.getElementById("closeSettings");
 const resetBtn = document.getElementById("resetBtn");
 const submitBtn = document.getElementById("submitBtn");
 const showSettingsBtn = document.getElementById("showSettings");
-const startAnimationBtn = document.getElementById("startAnimation");
 const totalHeight = window.innerHeight;
+let elapsed = 0;
+let pause = true;
+const pauseChar = '⏸️';
+const playChar = '▶️'; 
 
 const defaultSettings = {
   "durationInSeconds": 600,
@@ -136,25 +139,53 @@ function getClassByProgress(p) {
   return 'ending';
 }
 
-function startAnimation() {
+function switchPause() {
+  pause = !pause;
+  if (pause) {
+    displayStart();
+    pause = true
+    timer.classList.add("blinking");
+    timer.classList.add("pause");
+    timer.setAttribute('title', "Click to continue");
+  } else {
+    startAnimation(performance.now() - elapsed)
+    timer.classList.remove("blinking");
+    timer.classList.remove("pause");
+    timer.title = "Click to pause";
+  }
+}
+
+function displayPause() {
+  startBtn.innerHTML = pauseChar;
+  startBtn.title = 'pause';
+}
+
+function displayStart() {
+  startBtn.innerHTML = playChar;
+  startBtn.title = 'start';
+}
+
+function updateBackground(progress) {
+  const currentHeight = Math.floor(totalHeight * progress);
+  background.style.height = `${currentHeight}px`;
+  background.classList = getClassByProgress(progress);
+}
+
+function startAnimation(startTime = performance.now()) {
   requestWakeLock();
-  startMessage.style.opacity = 0;
-  setTimeout(() => startMessage.style.display = 'none', 600);
+  displayPause();
 
-  const startTime = performance.now();
-
-  function animate(time) {
-    const elapsed = time - startTime;
-    const progress = Math.min(elapsed / (settings.durationInSeconds * 1000), 1); // 0 → 1
-    const currentHeight = Math.floor(totalHeight * progress);
-
-    const remaining = settings.durationInSeconds - (elapsed / 1000);
+  function animate(time, durationInSeconds = settings.durationInSeconds) {
+    elapsed = time - startTime;
+    const progress = Math.min(elapsed / (durationInSeconds * 1000), 1); // 0 → 1
+    const remaining = durationInSeconds - (elapsed / 1000);
     timer.textContent = updateTimer(remaining);
 
-    div.style.height = `${currentHeight}px`;
-    div.classList = getClassByProgress(progress);
+    updateBackground(progress)
 
-    if (progress < 1) {
+    if (pause) {
+      return;
+    } else if (progress < 1) {
       requestAnimationFrame(animate);
     } else {
       timer.textContent = "00:00";
@@ -214,14 +245,13 @@ export function init() {
     }
   });
 
-  settingsForm.addEventListener('submit', submitSettings);
-  closeSettings.addEventListener('click', closeSettings);
+
+  showSettingsBtn.addEventListener('click', showSettings);
+  closeSettingsBtn.addEventListener('click', hideSettings);
   resetBtn.addEventListener('click', resetDefaultSettings);
   submitBtn.addEventListener('click', submitSettings);
-  startAnimationBtn.addEventListener('click', startAnimation);
-  showSettingsBtn.addEventListener('click', showSettings);
-
-
+  startBtn.addEventListener('click', switchPause);
+  displayStart();
 
   applySettings();
 }

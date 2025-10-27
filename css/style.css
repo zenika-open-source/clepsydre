@@ -107,39 +107,10 @@ body {
   }
 }
 
-#settingsForm input {
-  font-size: 1em;
-  padding: 1vh 1vw;
-  width: 100%;
-  box-sizing: border-box;
-}
-
-#settingsForm select {
-  font-size: 1em;
-  padding: 1vh 1vw;
-  width: 100%;
-  box-sizing: border-box;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  background-color: #fff;
-  color: #333;
-}
-
-#settingsForm input[type="checkbox"] {
-  width: auto;
-  height: auto;
-  margin: 3;
-  transform: scale(3);
-  accent-color: var(--blue);
-}
-
 #settingsModal {
   color: white;
   min-width: 20%;
-  font-size: calc(1vw + 1vh + 0.5vmin);
-  padding: 2vmax;
-  width: 80vw;
-  max-width: 600px;
+  font-size: 2em;
   background-color: #333333;
   z-index: 50;
 

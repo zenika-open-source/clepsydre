@@ -139,7 +139,7 @@ body {
   font-size: calc(1vw + 1vh + 0.5vmin);
   padding: 2vmax;
   width: 80vw;
-  max-width: 600px;
+  max-width: 30em;
   background-color: #333333;
   z-index: 50;
 
@@ -160,7 +160,7 @@ body {
   div.buttons {
     display: flex;
     gap: 0.5rem;
-    flex-wrap: wrap; 
+    flex-wrap: wrap;
   }
 
   button.action {
@@ -177,9 +177,9 @@ body {
   }
 
   #github{
-    position: static; 
-    order: 3; 
-    flex-basis: 100%; 
+    position: static;
+    order: 3;
+    flex-basis: 100%;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -249,5 +249,5 @@ body {
   font-weight: bold;
   text-align: center;
   padding: 0.2em;
-  background: none; 
+  background: none;
 }

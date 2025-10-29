@@ -2,10 +2,22 @@ import { describe, it, mock } from "node:test";
 import assert from "node:assert";
 import { initSettings, showSettings, hideSettings, submitSettings, updateSettingsForm } from "../settings.mjs";
 
+const settingsFormElementEmpty = {
+    ["color-scheme"]: { value: undefined },
+    ["threshold1"]: { value: undefined },
+    ["threshold2"]: { value: undefined },
+    ["threshold3"]: { value: undefined },
+    durationMinutes: { value: undefined },
+    durationSeconds: { value: undefined },
+    orientation: { value: undefined },
+    ["show-timer"]: { checked: undefined },
+    ["play-sound"]: { checked: undefined },
+    overtime: { checked: undefined },
+};
 
 describe('initSettings', () => {
     it(`Should create settings with given parameters`, () => {
-        const settings = initSettings({ durationInSeconds: 20, soundEnabled: true });
+        const settings = initSettings({ durationInSeconds: 20, soundEnabled: true, settingsFormElement: { ...settingsFormElementEmpty } });
 
         assert.deepEqual(settings, {
             colorScheme: 'zenika-colors',
@@ -16,6 +28,7 @@ describe('initSettings', () => {
             showTimer: true,
             soundEnabled: true,
             thirdThreshold: 0.95,
+            overtime: true,
         });
     });
 });
@@ -24,7 +37,7 @@ describe('initSettings', () => {
 describe('showSettings', () => {
     it(`Should open the modal`, () => {
         const settingsModalElement = { showModal: mock.fn(), close: mock.fn() };
-        initSettings({ settingsModalElement });
+        initSettings({ settingsModalElement, settingsFormElement: { ...settingsFormElementEmpty } });
 
         showSettings();
 
@@ -36,7 +49,7 @@ describe('showSettings', () => {
 describe('hideSettings', () => {
     it(`Should close the modal`, () => {
         const settingsModalElement = { showModal: mock.fn(), close: mock.fn() };
-        initSettings({ settingsModalElement });
+        initSettings({ settingsModalElement, settingsFormElement: { ...settingsFormElementEmpty } });
 
         hideSettings();
 
@@ -57,22 +70,23 @@ describe('submitSettings', () => {
         orientation: { value: 'downward' },
         ["show-timer"]: { checked: false },
         ["play-sound"]: { checked: false },
+        overtime: { checked: false },
     };
 
     it(`Should close the modal`, () => {
         const settingsModalElement = { showModal: mock.fn(), close: mock.fn() };
-        initSettings({ settingsModalElement, settingsFormElement });
+        initSettings({ settingsModalElement, settingsFormElement: { ...settingsFormElementEmpty } });
 
-        submitSettings();
+        submitSettings(settingsFormElement);
 
         assert.equal(settingsModalElement.close.mock.callCount(), 1);
     });
 
     it(`Should update the settings with the given form`, () => {
         const settingsModalElement = { showModal: mock.fn(), close: mock.fn() };
-        const settings = initSettings({ settingsModalElement, settingsFormElement });
+        const settings = initSettings({ durationInSeconds: 61, settingsModalElement, settingsFormElement: { ...settingsFormElementEmpty } });
 
-        submitSettings();
+        submitSettings(settingsFormElement);
 
         assert.deepEqual(settings, {
             colorScheme: 'zenika-other-colors',
@@ -83,29 +97,19 @@ describe('submitSettings', () => {
             orientation: 'downward',
             showTimer: false,
             soundEnabled: false,
+            overtime: false,
         });
     });
 });
 
 
 describe('updateSettingsForm', () => {
-    const settingsFormElement = {
-        ["color-scheme"]: { value: undefined },
-        ["threshold1"]: { value: undefined },
-        ["threshold2"]: { value: undefined },
-        ["threshold3"]: { value: undefined },
-        durationMinutes: { value: undefined },
-        durationSeconds: { value: undefined },
-        orientation: { value: undefined },
-        ["show-timer"]: { checked: undefined },
-        ["play-sound"]: { checked: undefined },
-    };
-
     it(`Should update the form with the given settings`, () => {
         const settingsModalElement = { showModal: mock.fn(), close: mock.fn() };
+        const settingsFormElement = { ...settingsFormElementEmpty };
         initSettings({ settingsModalElement, settingsFormElement, soundEnabled: true, durationInSeconds: 123 });
 
-        updateSettingsForm();
+        updateSettingsForm(settingsFormElement);
 
         assert.deepEqual(settingsFormElement, {
             ["color-scheme"]: { value: 'zenika-colors' },
@@ -117,6 +121,7 @@ describe('updateSettingsForm', () => {
             orientation: { value: 'upward' },
             ["show-timer"]: { checked: true },
             ["play-sound"]: { checked: true },
+            overtime: { checked: true },
         });
     });
 });

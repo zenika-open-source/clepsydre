@@ -6,17 +6,22 @@ const defaultSettings = {
     secondThreshold: 0.9,
     thirdThreshold: 0.95,
     soundEnabled: false,
-    orientation: "upward"
+    orientation: "upward",
+    overtime: true,
 }
 
 let settings;
 let settingsModal;
-let settingsForm;
 
-function initSettings({ durationInSeconds, soundEnabled, settingsModalElement, settingsFormElement }) {
+function initSettings({
+    durationInSeconds = defaultSettings.durationInSeconds,
+    soundEnabled = defaultSettings.soundEnabled,
+    settingsModalElement,
+    settingsFormElement,
+}) {
     settingsModal = settingsModalElement;
-    settingsForm = settingsFormElement;
     settings = { ...defaultSettings, durationInSeconds, soundEnabled }
+    updateSettingsForm(settingsFormElement);
     return settings;
 }
 
@@ -28,7 +33,7 @@ function hideSettings() {
     settingsModal.close();
 }
 
-function submitSettings() {
+function submitSettings(settingsForm) {
     settings.durationInSeconds = Number(settingsForm["durationMinutes"].value * 60) + Number(settingsForm["durationSeconds"].value)
     settings.colorScheme = settingsForm["color-scheme"].value;
     settings.showTimer = settingsForm["show-timer"].checked;
@@ -37,12 +42,13 @@ function submitSettings() {
     settings.thirdThreshold = settingsForm["threshold3"].value / 100;
     settings.soundEnabled = settingsForm["play-sound"].checked;
     settings.orientation = settingsForm["orientation"].value;
+    settings.overtime = settingsForm["overtime"].checked;
 
     hideSettings();
 }
 
 
-function updateSettingsForm() {
+function updateSettingsForm(settingsForm) {
     // Apply the settings to the form so it reflects current settings
     settingsForm["durationMinutes"].value = Math.floor(settings.durationInSeconds / 60);
     settingsForm["durationSeconds"].value = settings.durationInSeconds % 60;
@@ -53,6 +59,7 @@ function updateSettingsForm() {
     settingsForm["threshold3"].value = settings.thirdThreshold * 100;
     settingsForm["play-sound"].checked = settings.soundEnabled;
     settingsForm["orientation"].value = settings.orientation;
+    settingsForm["overtime"].checked = settings.overtime;
 }
 
 function resetDefaultSettings() {

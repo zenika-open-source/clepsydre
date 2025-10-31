@@ -1,5 +1,6 @@
 // fetch params in url for quick settings
-import { updateTimer } from "./utils.mjs";
+import { updateBackground, updateTimer, parseDuration } from "./utils.mjs";
+import { showSettings, hideSettings, submitSettings, resetDefaultSettings, initSettings } from "./settings.mjs";
 
 // Lecture du paramètre "duration" dans l'URL (en secondes)
 const params = new URLSearchParams(globalThis.location.search);
@@ -18,128 +19,10 @@ let pause = true;
 const pauseChar = '⏸️';
 const playChar = '▶️'; 
 
-const defaultSettings = {
-  "durationInSeconds": 600,
-  "showTimer": true,
-  "colorScheme": "zenika-colors",
-  "firstThreshold": 0.8,
-  "secondThreshold": 0.9,
-  "thirdThreshold": 0.95,
-  "soundEnabled": false,
-  "orientation": "upward"
-}
-
-let settings = {
-  "durationInSeconds": parseDuration(params.get("duration")),
-  "showTimer": true,
-  "colorScheme": "zenika-colors",
-  "firstThreshold": 0.8,
-  "secondThreshold": 0.9,
-  "thirdThreshold": 0.95,
-  "soundEnabled": params.get("sound") === "true",
-  "orientation": "upward"
-}
-
 let wakeLock = null;
 
-
-// ------------- Settings ----------------
-
-function parseDuration(durationStr) {
-  const DEFAULT = 600; // 10 minutes by default
-  if (!durationStr) return DEFAULT;
-
-  durationStr = durationStr.toLowerCase().trim();
-  let totalSeconds = 0;
-  const regex = /(\d+)([ms:]?)/g;
-  let match;
-  let found = false;
-
-  while ((match = regex.exec(durationStr)) !== null) {
-    found = true;
-    const value = Number.parseInt(match[1], 10);
-    const unit = match[2] || "s";
-    if (unit === "m" || unit === ":") {
-      totalSeconds += value * 60;
-    } else {
-      totalSeconds += value;
-    }
-  }
-
-  if (!found || totalSeconds <= 0) {
-    console.warn(`Durée invalide ("${durationStr}"), utilisation de la valeur par défaut: ${DEFAULT}s`);
-    return DEFAULT;
-  }
-  return totalSeconds;
-}
-
-
-function showSettings() {
-  settingsModal.showModal();
-}
-
-function hideSettings() {
-  settingsModal.close();
-}
-
-function submitSettings() {
-  settings.durationInSeconds = Number(settingsForm["durationMinutes"].value * 60) + Number(settingsForm["durationSeconds"].value)
-  settings.colorScheme = settingsForm["color-scheme"].value;
-  settings.showTimer = settingsForm["show-timer"].checked;
-  settings.firstThreshold = settingsForm["threshold1"].value / 100;
-  settings.secondThreshold = settingsForm["threshold2"].value / 100;
-  settings.thirdThreshold = settingsForm["threshold3"].value / 100;
-  settings.soundEnabled = settingsForm["play-sound"].checked;
-  settings.orientation = settingsForm["orientation"].value;
-
-  applySettings();
-  hideSettings();
-}
-
-function applySettings() {
-  timer.textContent = updateTimer(settings.durationInSeconds);
-  document.documentElement.className = settings.colorScheme;
-
-  if (settings.showTimer === false) {
-    // maybe only hide the timer once it's started, but keep it visible until start to show the duration?
-    timer.style.display = "none";
-  } else {
-    timer.style.display = "block";
-  }
-
-  updateSettingsForm();
-
-  // Currently : apply changes to running timer. Maybe start the timer over?
-}
-
-function updateSettingsForm() {
-  // Apply the settings to the form so it reflects current settings
-  settingsForm["durationMinutes"].value = Math.floor(settings.durationInSeconds / 60);
-  settingsForm["durationSeconds"].value = settings.durationInSeconds % 60;
-  settingsForm["show-timer"].checked = settings.showTimer;
-  settingsForm["color-scheme"].value = settings.colorScheme;
-  settingsForm["threshold1"].value = settings.firstThreshold * 100;
-  settingsForm["threshold2"].value = settings.secondThreshold * 100;
-  settingsForm["threshold3"].value = settings.thirdThreshold * 100;
-  settingsForm["play-sound"].checked = settings.soundEnabled;
-  settingsForm["orientation"].value = settings.orientation;
-}
-
-function resetDefaultSettings() {
-  settings = defaultSettings;
-  updateSettingsForm();
-}
-
 // ------------- Animation ----------------
-function getClassByProgress(p) {
-  // p = percentage between 0 and 1
-  if (p < settings.firstThreshold) return 'start';
-  if (p < settings.secondThreshold) return 'critical';
-  if (p < settings.thirdThreshold) return 'very-critical';
-  return 'ending';
-}
-
-function switchPause() {
+function switchPause(settings) {
   pause = !pause;
   if (pause) {
     displayStart();
@@ -148,7 +31,7 @@ function switchPause() {
     timer.classList.add("pause");
     timer.setAttribute('title', "Click to continue");
   } else {
-    startAnimation(performance.now() - elapsed)
+    startAnimation(performance.now() - elapsed, settings)
     timer.classList.remove("blinking");
     timer.classList.remove("pause");
     timer.title = "Click to pause";
@@ -165,23 +48,20 @@ function displayStart() {
   startBtn.title = 'start';
 }
 
-function updateBackground(progress) {
-  const currentHeight = Math.floor(totalHeight * progress);
-  background.style.height = `${currentHeight}px`;
-  background.classList = getClassByProgress(progress);
-}
 
-function startAnimation(startTime = performance.now()) {
+
+function startAnimation(startTime = performance.now(), settings) {
   requestWakeLock();
   displayPause();
+  const { durationInSeconds } = settings;
 
-  function animate(time, durationInSeconds = settings.durationInSeconds) {
+  function animate(time) {
     elapsed = time - startTime;
     const progress = Math.min(elapsed / (durationInSeconds * 1000), 1); // 0 → 1
     const remaining = durationInSeconds - (elapsed / 1000);
     timer.textContent = updateTimer(remaining);
 
-    updateBackground(progress)
+    updateBackground({ background, totalHeight, progress, settings })
 
     if (pause) {
       return;
@@ -189,7 +69,7 @@ function startAnimation(startTime = performance.now()) {
       requestAnimationFrame(animate);
     } else {
       timer.textContent = "00:00";
-      playBeep();
+      playBeep(settings);
       timer.classList.add("blinking"); // démarre le clignotement
 
       // Arrête le clignotement après 5 secondes
@@ -216,7 +96,7 @@ async function requestWakeLock() {
   }
 }
 
-function playBeep() {
+function playBeep(settings) {
   if (!settings.soundEnabled) return;
 
   const AudioContext = window.AudioContext || window.webkitAudioContext;
@@ -236,8 +116,24 @@ function playBeep() {
   oscillator.stop(audioCtx.currentTime + 0.3); // play for 0.3s
 }
 
+function applySettings(settings, timer) {
+  timer.textContent = updateTimer(settings.durationInSeconds);
+  document.documentElement.className = settings.colorScheme;
+
+  if (settings.showTimer === false) {
+    // maybe only hide the timer once it's started, but keep it visible until start to show the duration?
+    timer.style.display = "none";
+  } else {
+    timer.style.display = "block";
+  }
+}
+
 
 export function init() {
+  const settings = initSettings({
+    durationInSeconds: parseDuration(params.get("duration")), soundEnabled: params.get("sound") === "true", settingsModalElement: settingsModal, settingsFormElement: settingsForm
+  })
+
   // Wakelock: réactiver si la page revient au premier plan
   document.addEventListener('visibilitychange', () => {
     if (wakeLock !== null && document.visibilityState === 'visible') {
@@ -245,14 +141,15 @@ export function init() {
     }
   });
 
-
   showSettingsBtn.addEventListener('click', showSettings);
   closeSettingsBtn.addEventListener('click', hideSettings);
   resetBtn.addEventListener('click', resetDefaultSettings);
-  submitBtn.addEventListener('click', submitSettings);
-  startBtn.addEventListener('click', switchPause);
+  submitBtn.addEventListener('click', () => {
+    submitSettings()
+    applySettings(settings, timer);
+  });
+  startBtn.addEventListener('click', () => switchPause(settings));
+
   displayStart();
-
-  applySettings();
+  applySettings(settings, timer);
 }
-

@@ -17,7 +17,7 @@ const totalHeight = window.innerHeight;
 let elapsed = 0;
 let pause = true;
 const pauseChar = '⏸️';
-const playChar = '▶️'; 
+const playChar = '▶️';
 
 let wakeLock = null;
 
@@ -68,15 +68,19 @@ function startAnimation(startTime = performance.now(), settings) {
     } else if (progress < 1) {
       requestAnimationFrame(animate);
     } else {
-      timer.textContent = "00:00";
-      playBeep(settings);
-      timer.classList.add("blinking"); // démarre le clignotement
+      if (settings.overtime) {
+        requestAnimationFrame(animate);
+      } else {
+        timer.textContent = "00:00";
+        playBeep(settings);
+        timer.classList.add("blinking"); // démarre le clignotement
 
-      // Arrête le clignotement après 5 secondes
-      setTimeout(() => {
-        timer.classList.remove("blinking");
-        timer.style.opacity = "1";
-      }, 5000);
+        // Arrête le clignotement après 5 secondes
+        setTimeout(() => {
+          timer.classList.remove("blinking");
+          timer.style.opacity = "1";
+        }, 5000);
+      }
     }
   }
   requestAnimationFrame(animate);
@@ -132,8 +136,7 @@ function applySettings(settings, timer) {
 export function init() {
   const settings = initSettings({
     durationInSeconds: parseDuration(params.get("duration")), soundEnabled: params.get("sound") === "true", settingsModalElement: settingsModal, settingsFormElement: settingsForm
-  })
-
+  });
   // Wakelock: réactiver si la page revient au premier plan
   document.addEventListener('visibilitychange', () => {
     if (wakeLock !== null && document.visibilityState === 'visible') {
@@ -145,7 +148,7 @@ export function init() {
   closeSettingsBtn.addEventListener('click', hideSettings);
   resetBtn.addEventListener('click', resetDefaultSettings);
   submitBtn.addEventListener('click', () => {
-    submitSettings()
+    submitSettings(settingsForm)
     applySettings(settings, timer);
   });
   startBtn.addEventListener('click', () => switchPause(settings));

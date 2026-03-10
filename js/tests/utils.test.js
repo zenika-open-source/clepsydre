@@ -3,16 +3,31 @@ import assert from "node:assert";
 import { updateTimer, updateBackground, parseDuration } from "../utils.mjs";
 
 describe('Update timer', () => {
-  [
-    { timer: '00:00', time: 0 },
-    { timer: '00:02', time: 2 },
-    { timer: '01:01', time: 61 },
-    { timer: '1440:01', time: 86401 }
-  ].forEach(({ timer, time }) => {
-    it(`with ${time} displays ${timer}`, () => {
-      assert.equal(updateTimer(time), timer);
-    })
-  })
+  describe('When remaining time is greater than 0', () => {
+    [
+      { timer: '00:00', time: 0 },
+      { timer: '00:02', time: 2 },
+      { timer: '01:01', time: 61 },
+      { timer: '1440:01', time: 86401 }
+    ].forEach(({ timer, time }) => {
+      it(`with ${time} displays ${timer}`, () => {
+        assert.equal(updateTimer(time), timer);
+      })
+    });
+  });
+
+  describe('When remaining time is less than 0', () => {
+    [
+      { timer: '00:00', time: -0 },
+      { timer: '+00:02', time: -2 },
+      { timer: '+01:01', time: -61 },
+      { timer: '+1440:01', time: -86401 }
+    ].forEach(({ timer, time }) => {
+      it(`with ${time} displays ${timer}`, () => {
+        assert.equal(updateTimer(time), timer);
+      })
+    });
+  });
 });
 
 describe('updateBackground', () => {
